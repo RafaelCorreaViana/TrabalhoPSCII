@@ -1,0 +1,15 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: sporthub-postgres
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: sporthub
+      POSTGRES_PASSWORD: sporthub_dev
+      POSTGRES_DB: sporthub_db
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+volumes:
+  pgdata:

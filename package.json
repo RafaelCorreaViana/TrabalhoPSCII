@@ -1,0 +1,23 @@
+{
+  "name": "sporthub",
+  "version": "1.0.0",
+  "description": "SportHub Monorepo",
+  "scripts": {
+    "dev": "concurrently \"npm run dev --prefix server\" \"npm run dev --prefix client\"",
+    "build": "npm run build --prefix client && npm run build --prefix server",
+    "start": "npm run start --prefix server",
+    "prepare": "husky"
+  },
+  "workspaces": [
+    "client",
+    "server"
+  ],
+  "author": "Rafael",
+  "license": "ISC",
+  "devDependencies": {
+    "@commitlint/cli": "^20.5.0",
+    "@commitlint/config-conventional": "^20.5.0",
+    "concurrently": "^9.2.1",
+    "husky": "^9.1.7"
+  }
+}

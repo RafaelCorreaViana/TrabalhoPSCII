@@ -1,0 +1,196 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model session {
+  sid    String   @id @db.VarChar
+  sess   Json     @db.Json
+  expire DateTime @db.Timestamp(6)
+
+  @@index([expire], map: "IDX_session_expire")
+}
+
+model User {
+  id            String   @id @default(uuid())
+  name          String
+  email         String   @unique
+  password_hash String
+  role          Role     @default(PLAYER)
+  phone         String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  events         Event[]
+  registrations  Registration[]
+  venues         Venue[]
+  notifications  Notification[]
+  venueBookings  VenueBooking[]
+  teamMemberships TeamMember[]
+}
+
+enum Role {
+  ORGANIZER
+  PLAYER
+  VENUE_ADMIN
+}
+
+model Team {
+  id        String   @id @default(uuid())
+  name      String
+  createdAt DateTime @default(now())
+
+  members        TeamMember[]
+  registrations  Registration[]
+  homeMatches    Match[] @relation("HomeTeamMatches")
+  awayMatches    Match[] @relation("AwayTeamMatches")
+}
+
+model TeamMember {
+  id        String   @id @default(uuid())
+  teamId    String
+  playerId  String
+  joinedAt  DateTime @default(now())
+
+  team      Team     @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  player    User     @relation(fields: [playerId], references: [id], onDelete: Cascade)
+
+  @@unique([teamId, playerId])
+}
+
+model Venue {
+  id         String   @id @default(uuid())
+  name       String
+  address    String
+  sportType  String   @default("futsal")
+  capacity   Int?
+  adminId    String
+  createdAt  DateTime @default(now())
+
+  admin      User     @relation(fields: [adminId], references: [id])
+  bookings   VenueBooking[]
+  matches    Match[]
+}
+
+model Event {
+  id              String      @id @default(uuid())
+  name            String
+  sportType       String      @default("futsal")
+  description     String?     @db.Text
+  rules           String?     @db.Text
+  status          EventStatus @default(DRAFT)
+  maxParticipants Int?
+  startDate       DateTime?
+  endDate         DateTime?
+  organizerId     String
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+
+  organizer       User           @relation(fields: [organizerId], references: [id])
+  matches         Match[]
+  registrations   Registration[]
+}
+
+enum EventStatus {
+  DRAFT
+  ACTIVE
+  CLOSED
+  FINISHED
+}
+
+model Match {
+  id           String      @id @default(uuid())
+  eventId      String
+  venueId      String?
+  homeTeamId   String?
+  awayTeamId   String?
+  dateTime     DateTime?
+  homeScore    Int?
+  awayScore    Int?
+  status       MatchStatus @default(SCHEDULED)
+  notes        String?     @db.Text
+  createdAt    DateTime    @default(now())
+
+  event        Event         @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  venue        Venue?        @relation(fields: [venueId], references: [id])
+  homeTeam     Team?         @relation("HomeTeamMatches", fields: [homeTeamId], references: [id])
+  awayTeam     Team?         @relation("AwayTeamMatches", fields: [awayTeamId], references: [id])
+  venueBooking VenueBooking?
+}
+
+enum MatchStatus {
+  SCHEDULED
+  IN_PROGRESS
+  FINISHED
+  CANCELLED
+}
+
+model Registration {
+  id           String             @id @default(uuid())
+  eventId      String
+  playerId     String
+  teamId       String?
+  status       RegistrationStatus @default(PENDING)
+  registeredAt DateTime           @default(now())
+
+  event        Event  @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  player       User   @relation(fields: [playerId], references: [id], onDelete: Cascade)
+  team         Team?  @relation(fields: [teamId], references: [id])
+
+  @@unique([eventId, playerId])
+}
+
+enum RegistrationStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
+  REJECTED
+}
+
+model VenueBooking {
+  id         String        @id @default(uuid())
+  venueId    String
+  matchId    String?       @unique
+  bookedById String
+  startTime  DateTime
+  endTime    DateTime
+  status     BookingStatus @default(PENDING)
+  createdAt  DateTime      @default(now())
+
+  venue      Venue  @relation(fields: [venueId], references: [id], onDelete: Cascade)
+  match      Match? @relation(fields: [matchId], references: [id])
+  bookedBy   User   @relation(fields: [bookedById], references: [id])
+}
+
+enum BookingStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
+  REJECTED
+}
+
+model Notification {
+  id        String           @id @default(uuid())
+  userId    String
+  title     String
+  message   String           @db.Text
+  type      NotificationType
+  isRead    Boolean          @default(false)
+  createdAt DateTime         @default(now())
+
+  user      User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+enum NotificationType {
+  EVENT_UPDATE
+  MATCH_UPDATE
+  REGISTRATION
+  BOOKING
+}
