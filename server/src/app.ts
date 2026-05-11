@@ -8,6 +8,7 @@ import { Pool } from 'pg';
 import dotenv from 'dotenv';
 import { createServer } from 'http';
 import { Server } from 'socket.io';
+import authRoutes from './routes/auth.routes';
 
 dotenv.config();
 
@@ -69,6 +70,8 @@ app.use(
 app.get('/health', (req, res) => {
   res.status(200).json({ status: 'ok' });
 });
+
+app.use('/api/auth', authRoutes);
 
 // Socket.io events
 io.on('connection', (socket) => {
