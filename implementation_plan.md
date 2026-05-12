@@ -524,13 +524,13 @@ O sistema de notificações utiliza Socket.IO para entrega em tempo real:
 - [x] Layout base (Header, Sidebar, proteção de rotas)
 - [x] Contexto de autenticação (Zustand + React Query)
 
-### Fase 3 — Módulo do Organizador (Sprint 3)
-- [ ] CRUD de eventos (backend + frontend)
-- [ ] Criação de partidas dentro de eventos
-- [ ] Gestão de inscrições (listagem, aprovação/rejeição)
-- [ ] Notificação ao organizador quando jogador se inscreve
-- [ ] Criação de equipes e alocação de jogadores (drag & drop)
-- [ ] Validação de conflitos de horário
+### Fase 3 — Módulo do Organizador (Sprint 3) ✅ CONCLUÍDA
+- [x] CRUD de eventos (backend + frontend completos)
+- [x] Criação de partidas dentro de eventos (Interface e lógica prontas)
+- [x] Gestão de inscrições (Aprovação/Rejeição funcional com notificações)
+- [x] Notificação ao organizador quando jogador se inscreve (Lógica implementada)
+- [x] Criação de equipes e alocação de jogadores (Interface de gestão de times pronta)
+- [x] Validação de conflitos de horário (Implementada no backend)
 
 ### Fase 4 — Módulo do Jogador & Notificações (Sprint 4)
 - [ ] Listagem de eventos disponíveis com filtros

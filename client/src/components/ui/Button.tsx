@@ -3,22 +3,35 @@ import './Button.css';
 
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: 'primary' | 'secondary' | 'danger';
-  size?: 'sm' | 'md' | 'lg';
+  size?: 'small' | 'medium' | 'large';
+  isLoading?: boolean;
 }
 
-export const Button: React.FC<ButtonProps> = ({ 
-  children, 
-  variant = 'primary', 
-  size = 'md', 
-  className = '', 
-  ...props 
+const Button: React.FC<ButtonProps> = ({
+  children,
+  variant = 'primary',
+  size = 'medium',
+  className = '',
+  isLoading = false,
+  disabled,
+  ...props
 }) => {
+  const sizeClass = size === 'small' ? 'btn-sm' : size === 'large' ? 'btn-lg' : 'btn-md';
+
   return (
-    <button 
-      className={`btn btn-${variant} btn-${size} ${className}`}
+    <button
+      className={`btn btn-${variant} ${sizeClass} ${className}`}
+      disabled={disabled || isLoading}
       {...props}
     >
-      {children}
+      {isLoading ? (
+        <span className="btn-spinner" />
+      ) : (
+        children
+      )}
     </button>
   );
 };
+
+export { Button };
+export default Button;

@@ -7,17 +7,18 @@ import { useEffect } from 'react';
 import Login from '@/pages/Login';
 import Register from '@/pages/Register';
 import Dashboard from '@/pages/Dashboard';
+import EventsList from '@/pages/EventsList';
+import EventCreate from '@/pages/EventCreate';
+import EventDetail from '@/pages/EventDetail';
+import EventEdit from '@/pages/EventEdit';
 import Layout from '@/components/Layout';
 
 const queryClient = new QueryClient();
 
-// Componente para rotas protegidas
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { user, isLoading } = useAuthStore();
-
-  if (isLoading) return <div className="flex h-screen items-center justify-center">Carregando...</div>;
+  if (isLoading) return <div className="loading-fullscreen">Carregando...</div>;
   if (!user) return <Navigate to="/login" replace />;
-
   return <>{children}</>;
 };
 
@@ -34,10 +35,13 @@ function App() {
         <Routes>
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
-          
+
           <Route element={<ProtectedRoute><Layout /></ProtectedRoute>}>
             <Route path="/" element={<Dashboard />} />
-            {/* Outras rotas protegidas entrarão aqui */}
+            <Route path="/events" element={<EventsList />} />
+            <Route path="/events/new" element={<EventCreate />} />
+            <Route path="/events/:id" element={<EventDetail />} />
+            <Route path="/events/:id/edit" element={<EventEdit />} />
           </Route>
         </Routes>
       </Router>

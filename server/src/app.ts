@@ -9,6 +9,10 @@ import dotenv from 'dotenv';
 import { createServer } from 'http';
 import { Server } from 'socket.io';
 import authRoutes from './routes/auth.routes';
+import eventRoutes from './routes/event.routes';
+import matchRoutes from './routes/match.routes';
+import teamRoutes from './routes/team.routes';
+import registrationRoutes from './routes/registration.routes';
 
 dotenv.config();
 
@@ -72,6 +76,12 @@ app.get('/health', (req, res) => {
 });
 
 app.use('/api/auth', authRoutes);
+app.use('/api/events', eventRoutes);
+app.use('/api/events/:eventId/matches', matchRoutes);
+app.use('/api/matches', matchRoutes);
+app.use('/api/teams', teamRoutes);
+app.use('/api/events/:eventId/registrations', registrationRoutes);
+app.use('/api/registrations', registrationRoutes);
 
 // Socket.io events
 io.on('connection', (socket) => {
