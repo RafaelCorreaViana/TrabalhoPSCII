@@ -5,6 +5,7 @@ import { io } from '../app';
 
 const createTeamSchema = z.object({
   name: z.string().min(3, 'Nome do time deve ter pelo menos 3 caracteres'),
+  eventId: z.string().uuid('ID do evento inválido'),
 });
 
 const addMemberSchema = z.object({
@@ -18,6 +19,7 @@ export const createTeam = async (req: Request, res: Response) => {
     const team = await prisma.team.create({
       data: {
         name: data.name,
+        eventId: data.eventId,
       },
     });
 

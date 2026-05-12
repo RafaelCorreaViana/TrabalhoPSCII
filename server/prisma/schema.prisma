@@ -45,8 +45,10 @@ enum Role {
 model Team {
   id        String   @id @default(uuid())
   name      String
+  eventId   String
   createdAt DateTime @default(now())
 
+  event          Event          @relation(fields: [eventId], references: [id])
   members        TeamMember[]
   registrations  Registration[]
   homeMatches    Match[] @relation("HomeTeamMatches")
@@ -96,6 +98,7 @@ model Event {
   organizer       User           @relation(fields: [organizerId], references: [id])
   matches         Match[]
   registrations   Registration[]
+  teams           Team[]
 }
 
 enum EventStatus {

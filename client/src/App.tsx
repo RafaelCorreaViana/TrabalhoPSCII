@@ -13,6 +13,8 @@ import EventDetail from '@/pages/EventDetail';
 import EventEdit from '@/pages/EventEdit';
 import EventsDiscover from '@/pages/EventsDiscover';
 import EventPublicDetail from '@/pages/EventPublicDetail';
+import Teams from '@/pages/Teams';
+import Matches from '@/pages/Matches';
 import Layout from '@/components/Layout';
 
 const queryClient = new QueryClient();
@@ -50,6 +52,8 @@ function App() {
             {/* Módulo do Jogador - Fase 4 */}
             <Route path="/discover" element={<EventsDiscover />} />
             <Route path="/discover/:id" element={<EventPublicDetail />} />
+            <Route path="/teams" element={<Teams />} />
+            <Route path="/matches" element={<Matches />} />
           </Route>
         </Routes>
       </Router>

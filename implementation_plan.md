@@ -532,14 +532,14 @@ O sistema de notificações utiliza Socket.IO para entrega em tempo real:
 - [x] Criação de equipes e alocação de jogadores (Interface de gestão de times pronta)
 - [x] Validação de conflitos de horário (Implementada no backend)
 
-### Fase 4 — Módulo do Jogador & Notificações (Sprint 4)
-- [ ] Listagem de eventos disponíveis com filtros
-- [ ] Inscrição/cancelamento em eventos
-- [ ] Dashboard do jogador
-- [ ] Setup do Socket.IO (server + client)
-- [ ] Sistema de notificações em tempo real
-- [ ] Central de notificações
-- [ ] Detalhes das partidas e equipes
+### Fase 4 — Módulo do Jogador & Notificações (Sprint 4) ✅ CONCLUÍDA
+- [x] Listagem de eventos disponíveis com filtros
+- [x] Inscrição/cancelamento em eventos
+- [x] Dashboard do jogador
+- [x] Setup do Socket.IO (server + client)
+- [x] Sistema de notificações em tempo real
+- [x] Central de notificações
+- [x] Detalhes das partidas e equipes
 
 ### Fase 5 — Módulo de Locais & Polish (Sprint 5)
 - [ ] CRUD de locais esportivos (quadras de futsal)

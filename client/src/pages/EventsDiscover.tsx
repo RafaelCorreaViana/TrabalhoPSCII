@@ -71,7 +71,10 @@ export default function EventsDiscover() {
                 <Link to={`/discover/${ev.id}`} key={ev.id} className="discover-card">
                   <div className="discover-card-header">
                     <span className="sport-chip">{ev.sportType}</span>
-                    <span className={`status-badge status-${ev.status.toLowerCase()}`}>Aberto</span>
+                    <span className={`status-badge status-${ev.status.toLowerCase()}`}>
+                      {ev.status === 'ACTIVE' ? 'Aberto' : 
+                       ev.status === 'CLOSED' ? 'Encerrado' : 'Finalizado'}
+                    </span>
                   </div>
                   <h3 className="discover-card-title">{ev.name}</h3>
                   {ev.description && (

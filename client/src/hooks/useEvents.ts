@@ -22,6 +22,7 @@ export const useCreateEvent = () => {
     mutationFn: eventsApi.create,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['events'] });
+      queryClient.invalidateQueries({ queryKey: ['public-events'] });
     },
   });
 };
@@ -33,6 +34,7 @@ export const useUpdateEvent = () => {
     onSuccess: (_, { id }) => {
       queryClient.invalidateQueries({ queryKey: ['events'] });
       queryClient.invalidateQueries({ queryKey: ['event', id] });
+      queryClient.invalidateQueries({ queryKey: ['public-events'] });
     },
   });
 };

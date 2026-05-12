@@ -1,5 +1,5 @@
 import { useParams, useNavigate } from 'react-router-dom';
-import { useEvent, useDeleteEvent } from '@/hooks/useEvents';
+import { useEvent, useDeleteEvent, useUpdateEvent } from '@/hooks/useEvents';
 import { useDeleteMatch } from '@/hooks/useMatches';
 import Button from '@/components/ui/Button';
 import { useState } from 'react';
@@ -21,6 +21,7 @@ export default function EventDetail() {
   const navigate = useNavigate();
   const { data, isLoading, error } = useEvent(id!);
   const deleteEvent = useDeleteEvent();
+  const updateEvent = useUpdateEvent();
   const deleteMatch = useDeleteMatch(id!);
   const [activeTab, setActiveTab] = useState<TabType>('info');
   const [showMatchForm, setShowMatchForm] = useState(false);
@@ -31,10 +32,14 @@ export default function EventDetail() {
   const event = data.event;
   const matches = event.matches || [];
   const registrations = event.registrations || [];
-  // Times: extraídos dos times referenciados pelas partidas E dos times criados para o evento
-  // (o schema atual não tem relação direta event->teams; vamos pegar dos matches)
-  const teamsFromMatches: any[] = [];
-  const seenTeamIds = new Set<string>();
+  
+  // Times oficiais do evento (agora com relação direta no DB)
+  const officialTeams = event.teams || [];
+  
+  // Para compatibilidade, se houver times em matches que não estão em officialTeams (casos legados)
+  const teamsFromMatches: any[] = [...officialTeams];
+  const seenTeamIds = new Set<string>(officialTeams.map((t: any) => t.id));
+  
   matches.forEach((m: any) => {
     if (m.homeTeam && !seenTeamIds.has(m.homeTeam.id)) {
       teamsFromMatches.push(m.homeTeam);
@@ -89,6 +94,15 @@ export default function EventDetail() {
           <h1>{event.name}</h1>
         </div>
         <div className="event-header-actions">
+          {event.status === 'DRAFT' && (
+            <Button
+              variant="primary"
+              onClick={() => updateEvent.mutate({ id: id!, data: { status: 'ACTIVE' } })}
+              isLoading={updateEvent.isPending}
+            >
+              🚀 Publicar Evento
+            </Button>
+          )}
           <Button variant="secondary" onClick={() => navigate(`/events/${id}/edit`)}>
             ✏️ Editar
           </Button>

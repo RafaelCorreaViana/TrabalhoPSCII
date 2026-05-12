@@ -62,11 +62,17 @@ export const registrationsApi = {
 
 export const playerApi = {
   getEvents: (params?: { sport?: string; search?: string }) => {
-    const qs = new URLSearchParams(params as any).toString();
+    // Remove chaves com valor undefined para evitar que virem a string "undefined" na URL
+    const cleanParams = params ? Object.fromEntries(
+      Object.entries(params).filter(([_, v]) => v !== undefined)
+    ) : {};
+    const qs = new URLSearchParams(cleanParams as any).toString();
     return fetch(`/api/player/events${qs ? `?${qs}` : ''}`).then(handleResponse);
   },
   getEventById: (id: string) => fetch(`/api/player/events/${id}`).then(handleResponse),
   getDashboard: () => fetch('/api/player/dashboard').then(handleResponse),
+  getTeams: () => fetch('/api/player/teams').then(handleResponse),
+  getMatches: () => fetch('/api/player/matches').then(handleResponse),
   register: (eventId: string) => fetch(`/api/player/events/${eventId}/register`, { method: 'POST' }).then(handleResponse),
   cancelRegistration: (eventId: string) => fetch(`/api/player/events/${eventId}/register`, { method: 'DELETE' }).then(handleResponse),
 };

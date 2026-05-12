@@ -14,6 +14,7 @@ export default function EventCreate() {
     maxParticipants: 10,
     startDate: '',
     rules: '',
+    status: 'DRAFT',
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -87,6 +88,19 @@ export default function EventCreate() {
             onChange={handleChange}
             required
           />
+
+          <div className="form-group full-width" style={{ display: 'flex', alignItems: 'center', gap: '10px', marginTop: '10px' }}>
+            <input
+              type="checkbox"
+              id="publishImmediately"
+              checked={formData.status === 'ACTIVE'}
+              onChange={(e) => setFormData(prev => ({ ...prev, status: e.target.checked ? 'ACTIVE' : 'DRAFT' }))}
+              style={{ width: '20px', height: '20px', cursor: 'pointer' }}
+            />
+            <label htmlFor="publishImmediately" className="form-label" style={{ marginBottom: 0, cursor: 'pointer' }}>
+              🚀 Publicar evento imediatamente (ficará visível para jogadores)
+            </label>
+          </div>
 
           <div className="form-group full-width">
             <label className="form-label">Descrição</label>

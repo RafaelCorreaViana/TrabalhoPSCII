@@ -83,6 +83,15 @@ export const getEventById = async (req: Request, res: Response) => {
             player: { select: { name: true, email: true } },
             team: true,
           }
+        },
+        teams: {
+          include: {
+            members: {
+              include: {
+                player: { select: { name: true } }
+              }
+            }
+          }
         }
       },
     });

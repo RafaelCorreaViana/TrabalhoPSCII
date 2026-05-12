@@ -23,6 +23,20 @@ export const usePlayerDashboard = () => {
   });
 };
 
+export const usePlayerTeams = () => {
+  return useQuery({
+    queryKey: ['player-teams'],
+    queryFn: playerApi.getTeams,
+  });
+};
+
+export const usePlayerMatches = () => {
+  return useQuery({
+    queryKey: ['player-matches'],
+    queryFn: playerApi.getMatches,
+  });
+};
+
 export const useRegisterForEvent = () => {
   const queryClient = useQueryClient();
   return useMutation({

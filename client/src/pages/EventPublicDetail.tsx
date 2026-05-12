@@ -56,7 +56,11 @@ export default function EventPublicDetail() {
       <div className="event-public-hero glass-panel">
         <div className="event-public-meta">
           <span className="sport-chip">{event.sportType}</span>
-          <span className={`status-badge status-active`}>Inscrições Abertas</span>
+          <span className={`status-badge status-${event.status.toLowerCase()}`}>
+            {event.status === 'ACTIVE' ? 'Inscrições Abertas' : 
+             event.status === 'CLOSED' ? 'Inscrições Encerradas' : 
+             event.status === 'FINISHED' ? 'Evento Finalizado' : event.status}
+          </span>
         </div>
         <h1 className="event-public-title">{event.name}</h1>
         <p className="event-public-organizer">Organizado por <strong>{event.organizer.name}</strong></p>
@@ -97,7 +101,9 @@ export default function EventPublicDetail() {
           )}
           {user && !myRegistration && (
             <div className="cta-block">
-              {spotsLeft === 0 ? (
+              {event.status !== 'ACTIVE' ? (
+                <p className="text-secondary">As inscrições para este evento não estão disponíveis.</p>
+              ) : spotsLeft === 0 ? (
                 <p className="text-danger font-bold">Este evento está lotado.</p>
               ) : (
                 <Button onClick={handleRegister} isLoading={registerMutation.isPending} size="large">

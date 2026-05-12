@@ -20,10 +20,13 @@ export default function TeamManager({ eventId, eventTeams = [] }: TeamManagerPro
   });
 
   const createTeamMutation = useMutation({
-    mutationFn: (name: string) => teamsApi.create({ name }),
+    mutationFn: (name: string) => teamsApi.create({ name, eventId }),
     onSuccess: () => {
       setNewTeamName('');
       queryClient.invalidateQueries({ queryKey: ['event', eventId] });
+    },
+    onError: (err: any) => {
+      alert(err.message || 'Erro ao criar time.');
     },
   });
 
