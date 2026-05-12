@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { z } from 'zod';
 import { prisma } from '../lib/prisma';
+import { io } from '../app';
 
 const createTeamSchema = z.object({
   name: z.string().min(3, 'Nome do time deve ter pelo menos 3 caracteres'),
@@ -58,9 +59,27 @@ export const addTeamMember = async (req: Request, res: Response) => {
         teamId,
         playerId,
       },
+      include: {
+        team: { select: { name: true } }
+      }
     });
 
-    // TODO: Disparar notificação Socket.io para o jogador
+    // Disparar notificação Socket.io para o jogador
+    io.to(`user:${playerId}`).emit('notification:new', {
+      title: 'Você entrou em uma equipe!',
+      message: `Você foi adicionado à equipe ${(member as any).team.name}.`,
+      type: 'REGISTRATION',
+    });
+
+    // Salvar no banco
+    await prisma.notification.create({
+      data: {
+        userId: playerId,
+        title: 'Você entrou em uma equipe!',
+        message: `Você foi adicionado à equipe ${(member as any).team.name}.`,
+        type: 'REGISTRATION',
+      }
+    });
 
     res.status(201).json({ message: 'Jogador adicionado à equipe', member });
   } catch (error) {

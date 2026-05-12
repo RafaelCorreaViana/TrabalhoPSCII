@@ -75,6 +75,16 @@ export const updateRegistrationStatus = async (req: Request, res: Response) => {
       type: 'REGISTRATION',
     });
 
+    // Salvar notificação no banco de dados
+    await prisma.notification.create({
+      data: {
+        userId: registration.playerId,
+        title: 'Status da Inscrição Atualizado',
+        message: `Sua inscrição para o evento ${(updatedRegistration as any).event.name} foi ${status === 'CONFIRMED' ? 'Aprovada' : status === 'REJECTED' ? 'Rejeitada' : 'alterada'}.`,
+        type: 'REGISTRATION',
+      }
+    });
+
     res.status(200).json({ message: 'Status atualizado com sucesso', registration: updatedRegistration });
   } catch (error) {
     if (error instanceof z.ZodError) {

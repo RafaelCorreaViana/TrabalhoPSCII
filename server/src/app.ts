@@ -13,6 +13,8 @@ import eventRoutes from './routes/event.routes';
 import matchRoutes from './routes/match.routes';
 import teamRoutes from './routes/team.routes';
 import registrationRoutes from './routes/registration.routes';
+import playerRoutes from './routes/player.routes';
+import notificationRoutes from './routes/notification.routes';
 
 dotenv.config();
 
@@ -82,13 +84,22 @@ app.use('/api/matches', matchRoutes);
 app.use('/api/teams', teamRoutes);
 app.use('/api/events/:eventId/registrations', registrationRoutes);
 app.use('/api/registrations', registrationRoutes);
+app.use('/api/player', playerRoutes);
+app.use('/api/notifications', notificationRoutes);
 
-// Socket.io events
+// Socket.io: autenticar por sessão e ingressar em sala pessoal
 io.on('connection', (socket) => {
-  console.log('A user connected:', socket.id);
+  const userId = (socket.request as any).session?.userId;
+
+  if (userId) {
+    socket.join(`user:${userId}`);
+    console.log(`Socket connected: user ${userId} -> room user:${userId}`);
+  } else {
+    console.log('Anonymous socket connected:', socket.id);
+  }
 
   socket.on('disconnect', () => {
-    console.log('User disconnected:', socket.id);
+    console.log('Socket disconnected:', socket.id);
   });
 });
 

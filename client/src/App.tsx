@@ -11,6 +11,8 @@ import EventsList from '@/pages/EventsList';
 import EventCreate from '@/pages/EventCreate';
 import EventDetail from '@/pages/EventDetail';
 import EventEdit from '@/pages/EventEdit';
+import EventsDiscover from '@/pages/EventsDiscover';
+import EventPublicDetail from '@/pages/EventPublicDetail';
 import Layout from '@/components/Layout';
 
 const queryClient = new QueryClient();
@@ -38,10 +40,16 @@ function App() {
 
           <Route element={<ProtectedRoute><Layout /></ProtectedRoute>}>
             <Route path="/" element={<Dashboard />} />
+
+            {/* Módulo do Organizador */}
             <Route path="/events" element={<EventsList />} />
             <Route path="/events/new" element={<EventCreate />} />
             <Route path="/events/:id" element={<EventDetail />} />
             <Route path="/events/:id/edit" element={<EventEdit />} />
+
+            {/* Módulo do Jogador - Fase 4 */}
+            <Route path="/discover" element={<EventsDiscover />} />
+            <Route path="/discover/:id" element={<EventPublicDetail />} />
           </Route>
         </Routes>
       </Router>

@@ -59,3 +59,20 @@ export const registrationsApi = {
     body: JSON.stringify({ status }),
   }).then(handleResponse),
 };
+
+export const playerApi = {
+  getEvents: (params?: { sport?: string; search?: string }) => {
+    const qs = new URLSearchParams(params as any).toString();
+    return fetch(`/api/player/events${qs ? `?${qs}` : ''}`).then(handleResponse);
+  },
+  getEventById: (id: string) => fetch(`/api/player/events/${id}`).then(handleResponse),
+  getDashboard: () => fetch('/api/player/dashboard').then(handleResponse),
+  register: (eventId: string) => fetch(`/api/player/events/${eventId}/register`, { method: 'POST' }).then(handleResponse),
+  cancelRegistration: (eventId: string) => fetch(`/api/player/events/${eventId}/register`, { method: 'DELETE' }).then(handleResponse),
+};
+
+export const notificationsApi = {
+  getAll: () => fetch('/api/notifications').then(handleResponse),
+  markAllAsRead: () => fetch('/api/notifications/read-all', { method: 'PATCH' }).then(handleResponse),
+  markAsRead: (id: string) => fetch(`/api/notifications/${id}/read`, { method: 'PATCH' }).then(handleResponse),
+};

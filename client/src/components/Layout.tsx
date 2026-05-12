@@ -1,9 +1,14 @@
 import { Outlet, NavLink } from 'react-router-dom';
 import { useAuthStore } from '@/store/authStore';
-import { LogOut, Home, Calendar, Users, Trophy } from 'lucide-react';
+import { useSocket } from '@/hooks/useSocket';
+import NotificationCenter from '@/components/NotificationCenter';
+import { LogOut, Home, Calendar, Users, Trophy, Compass } from 'lucide-react';
 
 export default function Layout() {
   const { user, logout } = useAuthStore();
+
+  // Conectar Socket.IO quando o usuário estiver logado
+  useSocket(user?.id);
 
   const navClass = ({ isActive }: { isActive: boolean }) =>
     `nav-item${isActive ? ' active' : ''}`;
@@ -23,9 +28,14 @@ export default function Layout() {
           <NavLink to="/" end className={navClass}>
             <Home size={18} /> Dashboard
           </NavLink>
-          <NavLink to="/events" className={navClass}>
-            <Calendar size={18} /> Eventos
+          <NavLink to="/discover" className={navClass}>
+            <Compass size={18} /> Descobrir Eventos
           </NavLink>
+          {user?.role === 'ORGANIZER' && (
+            <NavLink to="/events" className={navClass}>
+              <Calendar size={18} /> Meus Eventos
+            </NavLink>
+          )}
           <NavLink to="/teams" className={navClass}>
             <Users size={18} /> Equipes
           </NavLink>
@@ -48,9 +58,12 @@ export default function Layout() {
             </div>
             <span className="badge">{user?.role}</span>
           </div>
-          <button onClick={logout} className="logout-btn">
-            <LogOut size={16} /> Sair
-          </button>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+            <NotificationCenter />
+            <button onClick={logout} className="logout-btn">
+              <LogOut size={16} /> Sair
+            </button>
+          </div>
         </header>
 
         <main className="page-content">
