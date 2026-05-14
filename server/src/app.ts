@@ -15,6 +15,8 @@ import teamRoutes from './routes/team.routes';
 import registrationRoutes from './routes/registration.routes';
 import playerRoutes from './routes/player.routes';
 import notificationRoutes from './routes/notification.routes';
+import venueRoutes from './routes/venue.routes';
+import bookingRoutes from './routes/booking.routes';
 
 dotenv.config();
 
@@ -86,6 +88,8 @@ app.use('/api/events/:eventId/registrations', registrationRoutes);
 app.use('/api/registrations', registrationRoutes);
 app.use('/api/player', playerRoutes);
 app.use('/api/notifications', notificationRoutes);
+app.use('/api/venues', venueRoutes);
+app.use('/api/bookings', bookingRoutes);
 
 // Socket.io: autenticar por sessão e ingressar em sala pessoal
 io.on('connection', (socket) => {

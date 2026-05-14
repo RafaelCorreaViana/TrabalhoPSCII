@@ -10,6 +10,7 @@ const eventSchema = z.object({
   maxParticipants: z.number().int().positive().optional(),
   startDate: z.string().datetime().optional(),
   endDate: z.string().datetime().optional(),
+  status: z.enum(['DRAFT', 'ACTIVE', 'CLOSED', 'FINISHED']).optional(),
 });
 
 export const createEvent = async (req: Request, res: Response) => {
