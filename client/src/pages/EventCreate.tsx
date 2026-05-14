@@ -1,8 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useCreateEvent } from '@/hooks/useEvents';
-import Button from '@/components/ui/Button';
-import Input from '@/components/ui/Input';
+import { ArrowLeft } from 'lucide-react';
 
 export default function EventCreate() {
   const navigate = useNavigate();
@@ -20,7 +19,6 @@ export default function EventCreate() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      // Converte data para formato ISO se houver
       const dataToSend = {
         ...formData,
         startDate: formData.startDate ? new Date(formData.startDate).toISOString() : undefined,
@@ -28,7 +26,7 @@ export default function EventCreate() {
       };
       
       await createEvent.mutateAsync(dataToSend);
-      navigate('/');
+      navigate('/events');
     } catch (error) {
       console.error('Erro ao criar evento:', error);
     }
@@ -40,108 +38,130 @@ export default function EventCreate() {
   };
 
   return (
-    <div className="page-container max-w-2xl mx-auto">
-      <div className="page-header mb-8">
-        <h1>Criar Novo Evento</h1>
-        <p className="text-secondary">Preencha os detalhes do seu evento esportivo.</p>
+    <div className="animate-fade-in" style={{ paddingBottom: '20px' }}>
+      <button className="btn-icon" onClick={() => navigate('/events')} style={{ marginBottom: '1rem' }}>
+        <ArrowLeft size={20} />
+      </button>
+
+      <div style={{ marginBottom: '1.5rem' }}>
+        <h1 className="page-title">Novo Evento</h1>
+        <p className="page-subtitle">Configure os detalhes do seu torneio ou partida</p>
       </div>
 
-      <form onSubmit={handleSubmit} className="form-card glass-panel p-8">
-        <div className="form-grid">
-          <Input
-            label="Nome do Evento"
-            name="name"
-            value={formData.name}
-            onChange={handleChange}
-            placeholder="Ex: Torneio de Futsal da Amizade"
-            required
-          />
-
+      <div className="card" style={{ padding: '1.5rem' }}>
+        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+          
           <div className="form-group">
-            <label className="form-label">Tipo de Esporte</label>
-            <select 
-              name="sportType" 
-              value={formData.sportType} 
-              onChange={handleChange}
+            <label className="form-label">Nome do Evento *</label>
+            <input
               className="form-input"
-            >
-              <option value="futsal">Futsal</option>
-              <option value="futebol">Futebol</option>
-              <option value="volei">Vôlei</option>
-            </select>
+              name="name"
+              value={formData.name}
+              onChange={handleChange}
+              placeholder="Ex: Torneio de Futsal da Amizade"
+              required
+            />
           </div>
 
-          <Input
-            label="Data de Início"
-            name="startDate"
-            type="datetime-local"
-            value={formData.startDate}
-            onChange={handleChange}
-            required
-          />
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+            <div className="form-group">
+              <label className="form-label">Esporte *</label>
+              <select 
+                className="form-input"
+                name="sportType" 
+                value={formData.sportType} 
+                onChange={handleChange}
+              >
+                <option value="futsal">Futsal</option>
+                <option value="futebol">Futebol</option>
+                <option value="volei">Vôlei</option>
+              </select>
+            </div>
+            
+            <div className="form-group">
+              <label className="form-label">Vagas (Máx) *</label>
+              <input
+                className="form-input"
+                name="maxParticipants"
+                type="number"
+                min="2"
+                value={formData.maxParticipants}
+                onChange={handleChange}
+                required
+              />
+            </div>
+          </div>
 
-          <Input
-            label="Vagas (Máx. Participantes)"
-            name="maxParticipants"
-            type="number"
-            value={formData.maxParticipants.toString()}
-            onChange={handleChange}
-            required
-          />
+          <div className="form-group">
+            <label className="form-label">Data de Início *</label>
+            <input
+              className="form-input"
+              name="startDate"
+              type="datetime-local"
+              value={formData.startDate}
+              onChange={handleChange}
+              required
+            />
+          </div>
 
-          <div className="form-group full-width" style={{ display: 'flex', alignItems: 'center', gap: '10px', marginTop: '10px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', background: 'var(--bg-tertiary)', padding: '12px 16px', borderRadius: '12px' }}>
             <input
               type="checkbox"
               id="publishImmediately"
               checked={formData.status === 'ACTIVE'}
               onChange={(e) => setFormData(prev => ({ ...prev, status: e.target.checked ? 'ACTIVE' : 'DRAFT' }))}
-              style={{ width: '20px', height: '20px', cursor: 'pointer' }}
+              style={{ width: '20px', height: '20px', accentColor: 'var(--accent-primary)', flexShrink: 0 }}
             />
-            <label htmlFor="publishImmediately" className="form-label" style={{ marginBottom: 0, cursor: 'pointer' }}>
-              🚀 Publicar evento imediatamente (ficará visível para jogadores)
+            <label htmlFor="publishImmediately" style={{ fontSize: '0.85rem', color: 'var(--text-primary)', cursor: 'pointer', lineHeight: 1.4 }}>
+              Publicar evento imediatamente <span style={{ color: 'var(--text-secondary)' }}>(ficará visível para jogadores)</span>
             </label>
           </div>
 
-          <div className="form-group full-width">
+          <div className="form-group">
             <label className="form-label">Descrição</label>
             <textarea
+              className="form-input"
               name="description"
               value={formData.description}
               onChange={handleChange}
-              className="form-input min-h-[100px]"
+              rows={3}
               placeholder="Descreva o evento, premiações, etc."
             />
           </div>
 
-          <div className="form-group full-width">
+          <div className="form-group">
             <label className="form-label">Regras</label>
             <textarea
+              className="form-input"
               name="rules"
               value={formData.rules}
               onChange={handleChange}
-              className="form-input min-h-[100px]"
+              rows={3}
               placeholder="Regras do torneio, tempo de jogo, etc."
             />
           </div>
-        </div>
 
-        <div className="form-actions mt-8 flex gap-4">
-          <Button 
-            type="button" 
-            variant="secondary" 
-            onClick={() => navigate('/')}
-            disabled={createEvent.isPending}
-          >
-            Cancelar
-          </Button>
-          <Button 
-            type="submit" 
-            isLoading={createEvent.isPending}
-          >
-            Criar Evento
-          </Button>
-        </div>
-      </form>
+          <div style={{ display: 'flex', gap: '1rem', marginTop: '0.5rem' }}>
+            <button 
+              type="button" 
+              className="btn btn-secondary" 
+              style={{ flex: 1 }}
+              onClick={() => navigate('/events')}
+              disabled={createEvent.isPending}
+            >
+              Cancelar
+            </button>
+            <button 
+              type="submit" 
+              className="btn btn-primary"
+              style={{ flex: 2 }}
+              disabled={createEvent.isPending}
+            >
+              {createEvent.isPending ? 'Criando...' : 'Criar Evento'}
+            </button>
+          </div>
+        </form>
+      </div>
     </div>
   );
 }

@@ -13,61 +13,69 @@ export default function Matches() {
   const matches: any[] = data?.matches || [];
 
   return (
-    <div className="matches-page">
-      <div className="page-header">
-        <h1>Minhas Partidas</h1>
-        <p className="text-secondary">Histórico e próximas partidas em todos os eventos.</p>
+    <div className="animate-fade-in" style={{ paddingBottom: '20px' }}>
+      <div style={{ marginBottom: '1.5rem' }}>
+        <h1 className="page-title">Minhas Partidas</h1>
+        <p className="page-subtitle">Histórico e próximas partidas em todos os eventos.</p>
       </div>
 
       {isLoading ? (
         <div className="loading-state">Carregando partidas...</div>
       ) : matches.length === 0 ? (
-        <div className="empty-state">
-          <div className="empty-icon"><Trophy size={48} /></div>
-          <h3>Nenhuma partida encontrada</h3>
-          <p className="text-secondary">Inscreva-se em eventos para participar de partidas emocionantes!</p>
+        <div className="empty-state card">
+          <div style={{ color: 'var(--accent-primary)', marginBottom: '1rem' }}><Trophy size={48} /></div>
+          <h3 style={{ fontSize: '1.1rem', fontWeight: 600, marginBottom: '0.5rem' }}>Nenhuma partida encontrada</h3>
+          <p style={{ fontSize: '0.85rem' }}>Inscreva-se em eventos para participar de partidas emocionantes!</p>
         </div>
       ) : (
-        <div className="matches-list-container">
-          <div className="matches-timeline">
-            {matches.map((match) => (
-              <div key={match.id} className="match-timeline-item glass-panel">
-                <div className="match-timeline-header">
-                  <span className="match-event-name">{match.event.name}</span>
-                  <span className={`status-badge status-${match.status.toLowerCase()}`}>
-                    {STATUS_LABELS[match.status]}
-                  </span>
-                </div>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+          {matches.map((match) => (
+            <div key={match.id} className="card" style={{ overflow: 'hidden' }}>
+              <div style={{ 
+                background: 'var(--bg-tertiary)', 
+                padding: '0.75rem 1rem', 
+                display: 'flex', 
+                justifyContent: 'space-between', 
+                alignItems: 'center',
+                borderBottom: '1px solid var(--border-color)'
+              }}>
+                <span style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--text-primary)' }}>
+                  {match.event.name}
+                </span>
+                <span className={`status-badge status-${match.status.toLowerCase()}`} style={{ fontSize: '0.7rem' }}>
+                  {STATUS_LABELS[match.status]}
+                </span>
+              </div>
 
-                <div className="match-main-content">
-                  <div className="team-display home">
-                    <span className="team-name">{match.homeTeam?.name || 'A definir'}</span>
+              <div style={{ padding: '1.25rem 1rem' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+                  <div style={{ flex: 1, textAlign: 'center', fontWeight: 600 }}>
+                    {match.homeTeam?.name || 'A definir'}
                   </div>
                   
-                  <div className="match-score-display">
-                    <span className="score">{match.homeScore ?? '—'}</span>
-                    <span className="score-divider">:</span>
-                    <span className="score">{match.awayScore ?? '—'}</span>
+                  <div style={{ 
+                    padding: '0.5rem 1rem', 
+                    background: 'var(--bg-tertiary)', 
+                    borderRadius: '12px',
+                    fontWeight: 800,
+                    fontSize: '1.2rem',
+                    color: 'var(--accent-primary)'
+                  }}>
+                    {match.homeScore ?? '-'} : {match.awayScore ?? '-'}
                   </div>
 
-                  <div className="team-display away">
-                    <span className="team-name">{match.awayTeam?.name || 'A definir'}</span>
+                  <div style={{ flex: 1, textAlign: 'center', fontWeight: 600 }}>
+                    {match.awayTeam?.name || 'A definir'}
                   </div>
                 </div>
 
-                <div className="match-timeline-footer">
-                  <div className="match-info-item">
-                    📅 {match.dateTime ? new Date(match.dateTime).toLocaleString('pt-BR') : 'Data a definir'}
-                  </div>
-                  {match.venue && (
-                    <div className="match-info-item">
-                      📍 {match.venue.name}
-                    </div>
-                  )}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem', fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
+                  <div>📅 {match.dateTime ? new Date(match.dateTime).toLocaleString('pt-BR') : 'Data a definir'}</div>
+                  {match.venue && <div>📍 {match.venue.name}</div>}
                 </div>
               </div>
-            ))}
-          </div>
+            </div>
+          ))}
         </div>
       )}
     </div>
