@@ -25,6 +25,8 @@ export default function VenueDetail() {
 
   const [showBookingForm, setShowBookingForm] = useState(false);
   const [bookingData, setBookingData] = useState({ date: '', startHour: '08', endHour: '09' });
+  
+  const [currentDate, setCurrentDate] = useState(new Date());
 
   const venue = venueQuery.data;
   const bookings = getVenueBookings.data ?? [];
@@ -80,6 +82,35 @@ export default function VenueDetail() {
     REJECTED: 'Rejeitada',
     CANCELLED: 'Cancelada',
   };
+
+  const getDaysInMonth = (date: Date) => {
+    const year = date.getFullYear();
+    const month = date.getMonth();
+    const days = [];
+    const firstDay = new Date(year, month, 1);
+    const lastDay = new Date(year, month + 1, 0);
+
+    const startPadding = firstDay.getDay(); 
+    for (let i = startPadding - 1; i >= 0; i--) {
+      days.push({ date: new Date(year, month, -i), isCurrentMonth: false });
+    }
+
+    for (let i = 1; i <= lastDay.getDate(); i++) {
+      days.push({ date: new Date(year, month, i), isCurrentMonth: true });
+    }
+
+    const remainingDays = (days.length > 35 ? 42 : 35) - days.length;
+    for (let i = 1; i <= remainingDays; i++) {
+      days.push({ date: new Date(year, month + 1, i), isCurrentMonth: false });
+    }
+
+    return days;
+  };
+
+  const calendarDays = getDaysInMonth(currentDate);
+
+  const prevMonth = () => setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1));
+  const nextMonth = () => setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1));
 
   return (
     <div className="venues-container animate-fade-in">
@@ -192,57 +223,63 @@ export default function VenueDetail() {
         </div>
       )}
 
-      {/* Agenda de reservas */}
+      {/* Calendário Mensal de Reservas */}
       <div className="card" style={{ padding: '1.5rem' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
           <h3 style={{ margin: 0, display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
             <Calendar size={18} /> Agenda de Reservas
           </h3>
-          {!isAdmin && (
-            <button className="btn btn-primary" style={{ gap: '0.5rem', fontSize: '0.875rem' }} onClick={() => setShowBookingForm(true)}>
-              <Plus size={16} /> Nova Reserva
-            </button>
-          )}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', background: 'var(--bg-tertiary)', borderRadius: '8px', padding: '0.25rem' }}>
+              <button className="btn-icon" onClick={prevMonth}>&lt;</button>
+              <span style={{ minWidth: '120px', textAlign: 'center', fontWeight: 600 }}>
+                {currentDate.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' }).replace(/^\w/, c => c.toUpperCase())}
+              </span>
+              <button className="btn-icon" onClick={nextMonth}>&gt;</button>
+            </div>
+            {!isAdmin && (
+              <button className="btn btn-primary" style={{ gap: '0.5rem', fontSize: '0.875rem' }} onClick={() => setShowBookingForm(true)}>
+                <Plus size={16} /> Nova Reserva
+              </button>
+            )}
+          </div>
         </div>
 
         {getVenueBookings.isLoading ? (
-          <div className="loading-state">Carregando reservas...</div>
-        ) : bookings.length === 0 ? (
-          <div style={{ textAlign: 'center', color: 'var(--text-secondary)', padding: '3rem' }}>
-            Nenhuma reserva registrada ainda.
-          </div>
+          <div className="loading-state">Carregando calendário...</div>
         ) : (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-            {bookings.map(b => (
-              <div key={b.id} style={{
-                display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-                background: 'var(--bg-tertiary)', padding: '1rem', borderRadius: '10px',
-                borderLeft: `4px solid ${statusColor[b.status]}`
-              }}>
-                <div>
-                  <div style={{ fontWeight: 600 }}>{b.bookedBy?.name}</div>
-                  <div style={{ fontSize: '0.82rem', color: 'var(--text-secondary)' }}>
-                    📅 {new Date(b.startTime).toLocaleDateString('pt-BR', { weekday: 'short', day: 'numeric', month: 'short' })} •{' '}
-                    🕐 {new Date(b.startTime).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })} –{' '}
-                    {new Date(b.endTime).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
-                  </div>
-                </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                  <span style={{
-                    fontSize: '0.75rem', fontWeight: 600, padding: '4px 10px', borderRadius: '999px',
-                    background: `${statusColor[b.status]}20`, color: statusColor[b.status]
-                  }}>
-                    {statusLabel[b.status]}
-                  </span>
-                  {isAdmin && b.status === 'PENDING' && (
-                    <div style={{ display: 'flex', gap: '0.5rem' }}>
-                      <button className="btn btn-primary" style={{ padding: '4px 10px', fontSize: '0.75rem' }} onClick={() => handleUpdateStatus(b.id, 'CONFIRMED')}>✓</button>
-                      <button className="btn btn-secondary" style={{ padding: '4px 10px', fontSize: '0.75rem', color: 'var(--accent-danger)' }} onClick={() => handleUpdateStatus(b.id, 'REJECTED')}>✕</button>
+          <div className="calendar-container" style={{ marginTop: 0 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', textAlign: 'center', fontWeight: 600, color: 'var(--text-secondary)', marginBottom: '0.5rem', fontSize: '0.875rem' }}>
+              {['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'].map(d => <div key={d}>{d}</div>)}
+            </div>
+            <div className="calendar-grid">
+              {calendarDays.map((day, idx) => {
+                const dayBookings = bookings.filter(b => {
+                  const bDate = new Date(b.startTime);
+                  return bDate.getDate() === day.date.getDate() && bDate.getMonth() === day.date.getMonth() && bDate.getFullYear() === day.date.getFullYear();
+                });
+
+                const isToday = new Date().toDateString() === day.date.toDateString();
+
+                return (
+                  <div key={idx} className={`calendar-day ${!day.isCurrentMonth ? 'other-month' : ''} ${isToday ? 'today' : ''}`}>
+                    <div style={{ textAlign: 'right', fontWeight: 600, fontSize: '0.875rem', marginBottom: '4px', color: isToday ? 'var(--accent-primary)' : 'inherit' }}>
+                      {day.date.getDate()}
                     </div>
-                  )}
-                </div>
-              </div>
-            ))}
+                    <div>
+                      {dayBookings.map(b => (
+                        <div key={b.id} className={`booking-item ${b.status === 'CONFIRMED' ? 'booking-confirmed' : b.status === 'PENDING' ? 'booking-pending' : ''}`} style={{ background: b.status === 'CONFIRMED' ? 'var(--accent-primary)20' : b.status === 'PENDING' ? 'var(--accent-warning)20' : 'transparent', color: b.status === 'CONFIRMED' ? 'var(--accent-primary)' : b.status === 'PENDING' ? 'var(--accent-warning)' : 'inherit', border: 'none', marginBottom: '4px' }}>
+                          <span style={{ display: 'block', fontSize: '0.65rem', fontWeight: 700 }}>
+                            {new Date(b.startTime).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
+                          </span>
+                          <span style={{ fontSize: '0.7rem' }}>{b.bookedBy?.name.split(' ')[0]}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
           </div>
         )}
       </div>
