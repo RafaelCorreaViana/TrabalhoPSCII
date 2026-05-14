@@ -2,7 +2,7 @@ import { Outlet, NavLink } from 'react-router-dom';
 import { useAuthStore } from '@/store/authStore';
 import { useSocket } from '@/hooks/useSocket';
 import NotificationCenter from '@/components/NotificationCenter';
-import { LogOut, Home, Calendar, Users, Trophy, Compass } from 'lucide-react';
+import { LogOut, Home, Calendar, Users, Trophy, Compass, MapPin } from 'lucide-react';
 
 export default function Layout() {
   const { user, logout } = useAuthStore();
@@ -41,6 +41,9 @@ export default function Layout() {
           </NavLink>
           <NavLink to="/matches" className={navClass}>
             <Trophy size={18} /> Partidas
+          </NavLink>
+          <NavLink to="/venues" className={navClass}>
+            <MapPin size={18} /> Locais
           </NavLink>
         </nav>
       </aside>

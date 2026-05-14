@@ -5,23 +5,19 @@ import { prisma } from '../lib/prisma';
 const venueSchema = z.object({
   name: z.string().min(3, 'Nome deve ter pelo menos 3 caracteres'),
   address: z.string().min(5, 'Endereço deve ter pelo menos 5 caracteres'),
-  sportTypes: z.array(z.string()).min(1, 'Selecione pelo menos um esporte'),
-  hourlyRate: z.number().nonnegative('Valor da hora não pode ser negativo'),
+  sportType: z.string().default('futsal'),
+  capacity: z.number().int().positive().optional(),
   description: z.string().optional(),
-  imageUrl: z.string().url().optional().or(z.literal('')),
 });
 
-// POST /api/venues - criar novo local
+// POST /api/venues
 export const createVenue = async (req: Request, res: Response) => {
   try {
     const adminId = req.session.userId!;
     const parsedData = venueSchema.parse(req.body);
 
     const venue = await prisma.venue.create({
-      data: {
-        ...parsedData,
-        adminId,
-      },
+      data: { ...parsedData, adminId },
     });
 
     res.status(201).json({ message: 'Local criado com sucesso.', venue });
@@ -34,20 +30,23 @@ export const createVenue = async (req: Request, res: Response) => {
   }
 };
 
-// GET /api/venues - listar locais
+// GET /api/venues
 export const getVenues = async (req: Request, res: Response) => {
   try {
     const { sport, search } = req.query;
 
     const venues = await prisma.venue.findMany({
       where: {
-        ...(sport && { sportTypes: { has: sport as string } }),
+        ...(sport && { sportType: sport as string }),
         ...(search && {
           OR: [
             { name: { contains: search as string, mode: 'insensitive' } },
             { address: { contains: search as string, mode: 'insensitive' } },
           ],
         }),
+      },
+      include: {
+        admin: { select: { name: true, email: true } },
       },
       orderBy: { name: 'asc' },
     });
@@ -59,7 +58,7 @@ export const getVenues = async (req: Request, res: Response) => {
   }
 };
 
-// GET /api/venues/:id - detalhes do local
+// GET /api/venues/:id
 export const getVenueById = async (req: Request, res: Response) => {
   try {
     const id = req.params.id as string;
@@ -82,29 +81,19 @@ export const getVenueById = async (req: Request, res: Response) => {
   }
 };
 
-// PUT /api/venues/:id - atualizar local
+// PUT /api/venues/:id
 export const updateVenue = async (req: Request, res: Response) => {
   try {
     const id = req.params.id as string;
     const adminId = req.session.userId!;
-    const parsedData = venueSchema.parse(req.body);
+    const parsedData = venueSchema.partial().parse(req.body);
 
     const venue = await prisma.venue.findUnique({ where: { id } });
+    if (!venue) return res.status(404).json({ error: 'Local não encontrado.' });
+    if (venue.adminId !== adminId) return res.status(403).json({ error: 'Sem permissão.' });
 
-    if (!venue) {
-      return res.status(404).json({ error: 'Local não encontrado.' });
-    }
-
-    if (venue.adminId !== adminId) {
-      return res.status(403).json({ error: 'Você não tem permissão para editar este local.' });
-    }
-
-    const updated = await prisma.venue.update({
-      where: { id },
-      data: parsedData,
-    });
-
-    res.json({ message: 'Local atualizado com sucesso.', venue: updated });
+    const updated = await prisma.venue.update({ where: { id }, data: parsedData });
+    res.json({ message: 'Local atualizado.', venue: updated });
   } catch (error) {
     if (error instanceof z.ZodError) {
       return res.status(400).json({ error: error.issues[0].message });
@@ -114,24 +103,17 @@ export const updateVenue = async (req: Request, res: Response) => {
   }
 };
 
-// DELETE /api/venues/:id - remover local
+// DELETE /api/venues/:id
 export const deleteVenue = async (req: Request, res: Response) => {
   try {
     const id = req.params.id as string;
     const adminId = req.session.userId!;
 
     const venue = await prisma.venue.findUnique({ where: { id } });
-
-    if (!venue) {
-      return res.status(404).json({ error: 'Local não encontrado.' });
-    }
-
-    if (venue.adminId !== adminId) {
-      return res.status(403).json({ error: 'Você não tem permissão para excluir este local.' });
-    }
+    if (!venue) return res.status(404).json({ error: 'Local não encontrado.' });
+    if (venue.adminId !== adminId) return res.status(403).json({ error: 'Sem permissão.' });
 
     await prisma.venue.delete({ where: { id } });
-
     res.json({ message: 'Local excluído com sucesso.' });
   } catch (error) {
     console.error('deleteVenue error:', error);

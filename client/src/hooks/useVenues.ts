@@ -1,18 +1,43 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import api from '../lib/api';
 
 export interface Venue {
   id: string;
   name: string;
   address: string;
-  sportTypes: string[];
-  hourlyRate: number;
+  sportType: string;
+  capacity?: number;
   description?: string;
-  imageUrl?: string;
   adminId: string;
   createdAt: string;
-  updatedAt: string;
+  admin?: { name: string; email: string };
 }
+
+const handleResponse = async (res: Response) => {
+  const body = await res.json().catch(() => ({}));
+  if (!res.ok) throw { response: { data: body } };
+  return body;
+};
+
+const venuesApi = {
+  getAll: () => fetch('/api/venues', { credentials: 'include' }).then(handleResponse),
+  getById: (id: string) => fetch(`/api/venues/${id}`, { credentials: 'include' }).then(handleResponse),
+  create: (data: Partial<Venue>) => fetch('/api/venues', {
+    method: 'POST',
+    credentials: 'include',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  }).then(handleResponse),
+  update: (id: string, data: Partial<Venue>) => fetch(`/api/venues/${id}`, {
+    method: 'PUT',
+    credentials: 'include',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  }).then(handleResponse),
+  delete: (id: string) => fetch(`/api/venues/${id}`, {
+    method: 'DELETE',
+    credentials: 'include',
+  }).then(handleResponse),
+};
 
 export const useVenues = () => {
   const queryClient = useQueryClient();
@@ -20,33 +45,43 @@ export const useVenues = () => {
   const getVenues = useQuery({
     queryKey: ['venues'],
     queryFn: async () => {
-      const { data } = await api.get('/venues');
+      const data = await venuesApi.getAll();
       return data.venues as Venue[];
     },
   });
 
-  const getVenueById = (id: string) => useQuery({
-    queryKey: ['venues', id],
-    queryFn: async () => {
-      const { data } = await api.get(`/venues/${id}`);
-      return data.venue as Venue;
-    },
-    enabled: !!id,
-  });
-
   const createVenue = useMutation({
-    mutationFn: async (venueData: Partial<Venue>) => {
-      const { data } = await api.post('/venues', venueData);
-      return data;
-    },
+    mutationFn: (venueData: Partial<Venue>) => venuesApi.create(venueData),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['venues'] });
     },
   });
 
-  return {
-    getVenues,
-    getVenueById,
-    createVenue,
-  };
+  const updateVenue = useMutation({
+    mutationFn: ({ id, ...venueData }: Partial<Venue> & { id: string }) =>
+      venuesApi.update(id, venueData),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['venues'] });
+    },
+  });
+
+  const deleteVenue = useMutation({
+    mutationFn: (id: string) => venuesApi.delete(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['venues'] });
+    },
+  });
+
+  return { getVenues, createVenue, updateVenue, deleteVenue };
+};
+
+export const useVenueById = (id: string) => {
+  return useQuery({
+    queryKey: ['venues', id],
+    queryFn: async () => {
+      const data = await venuesApi.getById(id);
+      return data.venue as Venue;
+    },
+    enabled: !!id,
+  });
 };

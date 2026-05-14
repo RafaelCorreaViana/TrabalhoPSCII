@@ -1,0 +1,305 @@
+import { useState } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import { useVenueById } from '@/hooks/useVenues';
+import { useBookings } from '@/hooks/useBookings';
+import { useAuthStore } from '@/store/authStore';
+import { MapPin, Users, ArrowLeft, Calendar, Plus, CheckCircle, XCircle, Clock } from 'lucide-react';
+import toast from 'react-hot-toast';
+import '@/styles/phase5.css';
+
+const SPORT_ICON: Record<string, string> = {
+  futsal: '⚽',
+  society: '⛳',
+  tênis: '🎾',
+  basquete: '🏀',
+  vôlei: '🏐',
+  natação: '🏊',
+};
+
+export default function VenueDetail() {
+  const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
+  const { user } = useAuthStore();
+  const venueQuery = useVenueById(id!);
+  const { getVenueBookings, createBooking, updateBookingStatus } = useBookings(id);
+
+  const [showBookingForm, setShowBookingForm] = useState(false);
+  const [bookingData, setBookingData] = useState({ date: '', startHour: '08', endHour: '09' });
+
+  const venue = venueQuery.data;
+  const bookings = getVenueBookings.data ?? [];
+
+  const isAdmin = venue?.adminId === user?.id;
+
+  const handleBook = async () => {
+    if (!bookingData.date) {
+      toast.error('Selecione uma data.');
+      return;
+    }
+    const startTime = `${bookingData.date}T${bookingData.startHour}:00:00.000Z`;
+    const endTime = `${bookingData.date}T${bookingData.endHour}:00:00.000Z`;
+
+    try {
+      await createBooking.mutateAsync({ venueId: id!, startTime, endTime });
+      toast.success('Reserva solicitada! Aguardando aprovação.');
+      setShowBookingForm(false);
+    } catch (err: any) {
+      toast.error(err?.response?.data?.error || 'Erro ao solicitar reserva.');
+    }
+  };
+
+  const handleUpdateStatus = async (bookingId: string, status: 'CONFIRMED' | 'REJECTED' | 'CANCELLED') => {
+    try {
+      await updateBookingStatus.mutateAsync({ id: bookingId, status });
+      toast.success(status === 'CONFIRMED' ? 'Reserva confirmada!' : 'Reserva rejeitada.');
+    } catch (err: any) {
+      toast.error(err?.response?.data?.error || 'Erro ao atualizar reserva.');
+    }
+  };
+
+  if (venueQuery.isLoading) {
+    return <div className="loading-state">Carregando local...</div>;
+  }
+
+  if (!venue) {
+    return <div className="empty-state card">Local não encontrado.</div>;
+  }
+
+  const pending = bookings.filter(b => b.status === 'PENDING');
+  const confirmed = bookings.filter(b => b.status === 'CONFIRMED');
+
+  const statusColor: Record<string, string> = {
+    CONFIRMED: '#22c55e',
+    PENDING: '#f59e0b',
+    REJECTED: '#ef4444',
+    CANCELLED: '#6b7280',
+  };
+  const statusLabel: Record<string, string> = {
+    CONFIRMED: 'Confirmada',
+    PENDING: 'Aguardando',
+    REJECTED: 'Rejeitada',
+    CANCELLED: 'Cancelada',
+  };
+
+  return (
+    <div className="venues-container animate-fade-in">
+      {/* Back */}
+      <button
+        className="btn btn-secondary"
+        style={{ marginBottom: '1.5rem', gap: '0.5rem' }}
+        onClick={() => navigate('/venues')}
+      >
+        <ArrowLeft size={16} /> Voltar aos Locais
+      </button>
+
+      {/* Header info */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 340px', gap: '2rem', marginBottom: '2rem' }} className="venue-detail-header">
+        <div className="card" style={{ padding: '2rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1rem' }}>
+            <span style={{ fontSize: '2.5rem' }}>{SPORT_ICON[venue.sportType] ?? '🏟️'}</span>
+            <div>
+              <h1 style={{ margin: 0, fontSize: '1.75rem' }}>{venue.name}</h1>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--text-secondary)', marginTop: '0.25rem' }}>
+                <MapPin size={14} />
+                <span>{venue.address}</span>
+              </div>
+            </div>
+          </div>
+
+          <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', marginBottom: '1rem' }}>
+            <span className="badge" style={{ textTransform: 'capitalize', background: 'var(--accent-primary)20', color: 'var(--accent-primary)' }}>
+              {venue.sportType}
+            </span>
+            {venue.capacity && (
+              <span className="badge" style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                <Users size={12} /> {venue.capacity} pessoas
+              </span>
+            )}
+          </div>
+
+          {venue.description && (
+            <p style={{ color: 'var(--text-secondary)', lineHeight: 1.6 }}>{venue.description}</p>
+          )}
+
+          <div style={{ marginTop: '1rem', fontSize: '0.85rem', color: 'var(--text-secondary)', borderTop: '1px solid var(--border-color)', paddingTop: '1rem' }}>
+            Administrado por <strong>{venue.admin?.name}</strong>
+          </div>
+        </div>
+
+        {/* Stats */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+          <div className="card" style={{ padding: '1.5rem', textAlign: 'center' }}>
+            <div style={{ fontSize: '2rem', fontWeight: 700, color: 'var(--accent-primary)' }}>{confirmed.length}</div>
+            <div style={{ color: 'var(--text-secondary)', fontSize: '0.875rem' }}>Reservas Confirmadas</div>
+          </div>
+          <div className="card" style={{ padding: '1.5rem', textAlign: 'center' }}>
+            <div style={{ fontSize: '2rem', fontWeight: 700, color: 'var(--accent-warning)' }}>{pending.length}</div>
+            <div style={{ color: 'var(--text-secondary)', fontSize: '0.875rem' }}>Aguardando Aprovação</div>
+          </div>
+          {!isAdmin && (
+            <button
+              className="btn btn-primary"
+              style={{ width: '100%', justifyContent: 'center', gap: '0.5rem' }}
+              onClick={() => setShowBookingForm(true)}
+            >
+              <Calendar size={18} /> Solicitar Reserva
+            </button>
+          )}
+        </div>
+      </div>
+
+      {/* Admin: pendentes */}
+      {isAdmin && pending.length > 0 && (
+        <div className="card" style={{ padding: '1.5rem', marginBottom: '2rem' }}>
+          <h3 style={{ marginTop: 0, display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <Clock size={18} /> Solicitações Pendentes ({pending.length})
+          </h3>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+            {pending.map(b => (
+              <div key={b.id} style={{
+                display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                background: 'var(--bg-tertiary)', padding: '0.75rem 1rem', borderRadius: '8px'
+              }}>
+                <div>
+                  <div style={{ fontWeight: 600 }}>{b.bookedBy?.name}</div>
+                  <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
+                    {new Date(b.startTime).toLocaleDateString('pt-BR')} •{' '}
+                    {new Date(b.startTime).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })} –{' '}
+                    {new Date(b.endTime).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
+                  </div>
+                </div>
+                <div style={{ display: 'flex', gap: '0.5rem' }}>
+                  <button
+                    className="btn btn-primary"
+                    style={{ padding: '6px 12px', fontSize: '0.8rem', gap: '4px' }}
+                    onClick={() => handleUpdateStatus(b.id, 'CONFIRMED')}
+                    disabled={updateBookingStatus.isPending}
+                  >
+                    <CheckCircle size={14} /> Confirmar
+                  </button>
+                  <button
+                    className="btn btn-secondary"
+                    style={{ padding: '6px 12px', fontSize: '0.8rem', gap: '4px', color: 'var(--accent-danger)' }}
+                    onClick={() => handleUpdateStatus(b.id, 'REJECTED')}
+                    disabled={updateBookingStatus.isPending}
+                  >
+                    <XCircle size={14} /> Rejeitar
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Agenda de reservas */}
+      <div className="card" style={{ padding: '1.5rem' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+          <h3 style={{ margin: 0, display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <Calendar size={18} /> Agenda de Reservas
+          </h3>
+          {!isAdmin && (
+            <button className="btn btn-primary" style={{ gap: '0.5rem', fontSize: '0.875rem' }} onClick={() => setShowBookingForm(true)}>
+              <Plus size={16} /> Nova Reserva
+            </button>
+          )}
+        </div>
+
+        {getVenueBookings.isLoading ? (
+          <div className="loading-state">Carregando reservas...</div>
+        ) : bookings.length === 0 ? (
+          <div style={{ textAlign: 'center', color: 'var(--text-secondary)', padding: '3rem' }}>
+            Nenhuma reserva registrada ainda.
+          </div>
+        ) : (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+            {bookings.map(b => (
+              <div key={b.id} style={{
+                display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                background: 'var(--bg-tertiary)', padding: '1rem', borderRadius: '10px',
+                borderLeft: `4px solid ${statusColor[b.status]}`
+              }}>
+                <div>
+                  <div style={{ fontWeight: 600 }}>{b.bookedBy?.name}</div>
+                  <div style={{ fontSize: '0.82rem', color: 'var(--text-secondary)' }}>
+                    📅 {new Date(b.startTime).toLocaleDateString('pt-BR', { weekday: 'short', day: 'numeric', month: 'short' })} •{' '}
+                    🕐 {new Date(b.startTime).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })} –{' '}
+                    {new Date(b.endTime).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
+                  </div>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                  <span style={{
+                    fontSize: '0.75rem', fontWeight: 600, padding: '4px 10px', borderRadius: '999px',
+                    background: `${statusColor[b.status]}20`, color: statusColor[b.status]
+                  }}>
+                    {statusLabel[b.status]}
+                  </span>
+                  {isAdmin && b.status === 'PENDING' && (
+                    <div style={{ display: 'flex', gap: '0.5rem' }}>
+                      <button className="btn btn-primary" style={{ padding: '4px 10px', fontSize: '0.75rem' }} onClick={() => handleUpdateStatus(b.id, 'CONFIRMED')}>✓</button>
+                      <button className="btn btn-secondary" style={{ padding: '4px 10px', fontSize: '0.75rem', color: 'var(--accent-danger)' }} onClick={() => handleUpdateStatus(b.id, 'REJECTED')}>✕</button>
+                    </div>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Booking Modal */}
+      {showBookingForm && (
+        <div className="modal-overlay" onClick={(e) => e.target === e.currentTarget && setShowBookingForm(false)}>
+          <div className="modal-content" style={{ maxWidth: '480px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+              <h3 style={{ margin: 0 }}>Solicitar Reserva</h3>
+              <button onClick={() => setShowBookingForm(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-secondary)' }}>✕</button>
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+              <div>
+                <label className="form-label">Data *</label>
+                <input
+                  type="date"
+                  className="form-input"
+                  value={bookingData.date}
+                  min={new Date().toISOString().split('T')[0]}
+                  onChange={e => setBookingData(p => ({ ...p, date: e.target.value }))}
+                />
+              </div>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                <div>
+                  <label className="form-label">Horário de Início</label>
+                  <select className="form-input" value={bookingData.startHour} onChange={e => setBookingData(p => ({ ...p, startHour: e.target.value }))}>
+                    {Array.from({ length: 16 }, (_, i) => i + 6).map(h => (
+                      <option key={h} value={String(h).padStart(2, '0')}>{String(h).padStart(2, '0')}:00</option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="form-label">Horário de Término</label>
+                  <select className="form-input" value={bookingData.endHour} onChange={e => setBookingData(p => ({ ...p, endHour: e.target.value }))}>
+                    {Array.from({ length: 16 }, (_, i) => i + 7).map(h => (
+                      <option key={h} value={String(h).padStart(2, '0')}>{String(h).padStart(2, '0')}:00</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              <div style={{ background: 'var(--bg-tertiary)', padding: '0.75rem 1rem', borderRadius: '8px', fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
+                ℹ️ Sua solicitação será enviada ao administrador do local para aprovação.
+              </div>
+
+              <div style={{ display: 'flex', gap: '1rem', justifyContent: 'flex-end' }}>
+                <button className="btn btn-secondary" onClick={() => setShowBookingForm(false)}>Cancelar</button>
+                <button className="btn btn-primary" onClick={handleBook} disabled={createBooking.isPending}>
+                  {createBooking.isPending ? 'Enviando...' : 'Solicitar Reserva'}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
