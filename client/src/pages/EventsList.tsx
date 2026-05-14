@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useEvents, useDeleteEvent } from '@/hooks/useEvents';
 import { useAuthStore } from '@/store/authStore';
-import Button from '@/components/ui/Button';
 
 const STATUS_LABELS: Record<string, string> = {
   DRAFT: 'Rascunho',

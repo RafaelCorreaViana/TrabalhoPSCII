@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useEvent, useUpdateEvent } from '@/hooks/useEvents';
 import Button from '@/components/ui/Button';
-import Input from '@/components/ui/Input';
 
 const STATUS_OPTIONS = ['DRAFT', 'ACTIVE', 'CLOSED', 'FINISHED'];
 

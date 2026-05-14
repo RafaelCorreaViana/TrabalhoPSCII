@@ -9,9 +9,17 @@ interface VenueFormProps {
 
 const SPORT_TYPES = ['futsal', 'society', 'tênis', 'basquete', 'vôlei', 'natação'];
 
+interface VenueFormData {
+  name: string;
+  address: string;
+  sportType: string;
+  capacity?: string | number;
+  description?: string;
+}
+
 export default function VenueForm({ onClose }: VenueFormProps) {
   const { createVenue } = useVenues();
-  const { register, handleSubmit, formState: { errors } } = useForm({
+  const { register, handleSubmit, formState: { errors } } = useForm<VenueFormData>({
     defaultValues: { sportType: 'futsal' }
   });
 

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { teamsApi, registrationsApi } from '@/lib/api';
 import Button from '@/components/ui/Button';
+import toast from 'react-hot-toast';
 
 interface TeamManagerProps {
   eventId: string;
@@ -14,6 +15,8 @@ export default function TeamManager({ eventId, eventTeams = [] }: TeamManagerPro
   const [assigningPlayer, setAssigningPlayer] = useState<{ playerId: string; playerName: string } | null>(null);
   const [selectedTeamId, setSelectedTeamId] = useState('');
 
+  console.log('TeamManager rendered with eventTeams:', eventTeams);
+
   const { data: regData } = useQuery({
     queryKey: ['registrations', eventId],
     queryFn: () => registrationsApi.getAllByEvent(eventId),
@@ -22,11 +25,12 @@ export default function TeamManager({ eventId, eventTeams = [] }: TeamManagerPro
   const createTeamMutation = useMutation({
     mutationFn: (name: string) => teamsApi.create({ name, eventId }),
     onSuccess: () => {
+      toast.success('Time criado com sucesso!');
       setNewTeamName('');
       queryClient.invalidateQueries({ queryKey: ['event', eventId] });
     },
     onError: (err: any) => {
-      alert(err.message || 'Erro ao criar time.');
+      toast.error(err.message || 'Erro ao criar time.');
     },
   });
 

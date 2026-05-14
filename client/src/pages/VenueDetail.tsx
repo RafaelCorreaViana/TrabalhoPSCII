@@ -70,19 +70,6 @@ export default function VenueDetail() {
   const pending = bookings.filter(b => b.status === 'PENDING');
   const confirmed = bookings.filter(b => b.status === 'CONFIRMED');
 
-  const statusColor: Record<string, string> = {
-    CONFIRMED: '#22c55e',
-    PENDING: '#f59e0b',
-    REJECTED: '#ef4444',
-    CANCELLED: '#6b7280',
-  };
-  const statusLabel: Record<string, string> = {
-    CONFIRMED: 'Confirmada',
-    PENDING: 'Aguardando',
-    REJECTED: 'Rejeitada',
-    CANCELLED: 'Cancelada',
-  };
-
   const getDaysInMonth = (date: Date) => {
     const year = date.getFullYear();
     const month = date.getMonth();
