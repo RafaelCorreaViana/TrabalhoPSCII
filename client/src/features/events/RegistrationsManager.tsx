@@ -23,48 +23,50 @@ export default function RegistrationsManager({ eventId }: RegistrationsManagerPr
 
   return (
     <div className="registrations-manager">
-      <div className="registration-list flex flex-col gap-4">
+      <div className="registration-list flex flex-col" style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
         {registrations.length === 0 ? (
           <p className="text-center py-8 opacity-50">Nenhum jogador inscrito neste evento ainda.</p>
         ) : (
           registrations.map((reg: any) => (
-            <div key={reg.id} className="registration-item glass-panel p-4 flex justify-between items-center bg-bg-tertiary">
-              <div className="player-info">
-                <p className="font-bold">{reg.player.name}</p>
-                <p className="text-xs text-secondary">{reg.player.email}</p>
-                <span className={`badge badge-${reg.status.toLowerCase()} mt-2 inline-block text-[10px] uppercase font-bold px-2 py-0.5 rounded`}>
+            <div key={reg.id} className="registration-item glass-panel" style={{ padding: '1rem', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+              {/* Info do jogador */}
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '0.5rem' }}>
+                <div style={{ minWidth: 0 }}>
+                  <p style={{ fontWeight: 700, margin: 0 }}>{reg.player.name}</p>
+                  <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', margin: '2px 0 0', wordBreak: 'break-all' }}>{reg.player.email}</p>
+                </div>
+                <span className={`badge badge-${reg.status.toLowerCase()}`} style={{ flexShrink: 0, fontSize: '0.7rem', textTransform: 'uppercase', fontWeight: 700, padding: '2px 8px', borderRadius: '999px', background: 'var(--bg-tertiary)', border: '1px solid var(--glass-border)' }}>
                   {reg.status}
                 </span>
               </div>
-              <div className="actions flex gap-2">
+              {/* Botões */}
+              <div style={{ display: 'grid', gridTemplateColumns: reg.status === 'PENDING' ? '1fr 1fr' : '1fr', gap: '0.5rem' }}>
                 {reg.status === 'PENDING' && (
                   <>
-                    <Button 
-                      size="small" 
+                    <button 
+                      className="btn btn-primary btn-sm"
                       onClick={() => handleStatusUpdate(reg.id, 'CONFIRMED')}
-                      isLoading={updateStatus.isPending}
+                      disabled={updateStatus.isPending}
                     >
-                      Aprovar
-                    </Button>
-                    <Button 
-                      size="small" 
-                      variant="danger" 
+                      ✓ Aprovar
+                    </button>
+                    <button 
+                      className="btn btn-danger btn-sm"
                       onClick={() => handleStatusUpdate(reg.id, 'REJECTED')}
-                      isLoading={updateStatus.isPending}
+                      disabled={updateStatus.isPending}
                     >
-                      Rejeitar
-                    </Button>
+                      ✕ Rejeitar
+                    </button>
                   </>
                 )}
                 {reg.status !== 'PENDING' && (
-                  <Button 
-                    size="small" 
-                    variant="secondary"
+                  <button 
+                    className="btn btn-secondary btn-sm"
                     onClick={() => handleStatusUpdate(reg.id, 'PENDING')}
-                    isLoading={updateStatus.isPending}
+                    disabled={updateStatus.isPending}
                   >
                     Mudar para Pendente
-                  </Button>
+                  </button>
                 )}
               </div>
             </div>

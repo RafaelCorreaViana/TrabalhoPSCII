@@ -636,7 +636,7 @@ input::placeholder, textarea::placeholder {
 /* ─── DASHBOARD GRID ──────────────────────────────────────── */
 .stats-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(2, 1fr);
   gap: 0.75rem;
   margin-bottom: 1.25rem;
 }

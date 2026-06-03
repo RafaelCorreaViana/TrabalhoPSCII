@@ -110,9 +110,9 @@ export default function VenueDetail() {
         <ArrowLeft size={16} /> Voltar aos Locais
       </button>
 
-      {/* Header info */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 340px', gap: '2rem', marginBottom: '2rem' }} className="venue-detail-header">
-        <div className="card" style={{ padding: '2rem' }}>
+      {/* Header info - AJUSTADO PARA RESPONSIVIDADE MOBILE */}
+      <div style={{ display: 'flex', flexDirection: 'row', flexWrap: 'wrap', gap: '1rem', marginBottom: '2rem' }} className="venue-detail-header">
+        <div className="card" style={{ padding: '1.5rem', flex: 1, minWidth: '220px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1rem' }}>
             <span style={{ fontSize: '2.5rem' }}>{SPORT_ICON[venue.sportType] ?? '🏟️'}</span>
             <div>
@@ -144,15 +144,15 @@ export default function VenueDetail() {
           </div>
         </div>
 
-        {/* Stats */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+        {/* Stats - AJUSTADO PARA EM COMPALIBILIDADE SE AJUSTAR LADO A LADO SEM CORTES */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', flex: 1, minWidth: '140px' }}>
           <div className="card" style={{ padding: '1.5rem', textAlign: 'center' }}>
             <div style={{ fontSize: '2rem', fontWeight: 700, color: 'var(--accent-primary)' }}>{confirmed.length}</div>
             <div style={{ color: 'var(--text-secondary)', fontSize: '0.875rem' }}>Reservas Confirmadas</div>
           </div>
           <div className="card" style={{ padding: '1.5rem', textAlign: 'center' }}>
             <div style={{ fontSize: '2rem', fontWeight: 700, color: 'var(--accent-warning)' }}>{pending.length}</div>
-            <div style={{ color: 'var(--text-secondary)', fontSize: '0.875rem' }}>Aguardando Aprovação</div>
+            <div style={{ color: 'var(--text-secondary)', fontSize: '0.875rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>Aguardando Aprovação</div>
           </div>
           {!isAdmin && (
             <button
@@ -176,7 +176,7 @@ export default function VenueDetail() {
             {pending.map(b => (
               <div key={b.id} style={{
                 display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-                background: 'var(--bg-tertiary)', padding: '0.75rem 1rem', borderRadius: '8px'
+                background: 'var(--bg-tertiary)', padding: '0.75rem 1rem', borderRadius: '8px', flexWrap: 'wrap', gap: '0.5rem'
               }}>
                 <div>
                   <div style={{ fontWeight: 600 }}>{b.bookedBy?.name}</div>
@@ -210,13 +210,13 @@ export default function VenueDetail() {
         </div>
       )}
 
-      {/* Calendário Mensal de Reservas */}
+      {/* Calendário Mensal de Reservas - AJUSTADO O CORPO DO HEADER PARA QUEBRA EM TELAS PEQUENAS */}
       <div className="card" style={{ padding: '1.5rem' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.75rem', marginBottom: '1.5rem' }}>
           <h3 style={{ margin: 0, display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
             <Calendar size={18} /> Agenda de Reservas
           </h3>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', flexWrap: 'wrap' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', background: 'var(--bg-tertiary)', borderRadius: '8px', padding: '0.25rem' }}>
               <button className="btn-icon" onClick={prevMonth}>&lt;</button>
               <span style={{ minWidth: '120px', textAlign: 'center', fontWeight: 600 }}>

@@ -32,7 +32,7 @@ export default function Layout() {
       <header className="topbar">
         <span className="topbar-brand">⚽ SportHub</span>
 
-        <span style={{ fontSize: '0.95rem', fontWeight: 700, color: 'rgba(255,255,255,0.9)', flex: 1, textAlign: 'center', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+        <span style={{ fontSize: '0.95rem', fontWeight: 700, color: 'rgba(255,255,255,0.9)', flex: 1, textAlign: 'center', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', minWidth: 0, padding: '0 0.5rem' }}>
           {pageTitle}
         </span>
 

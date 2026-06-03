@@ -10,6 +10,12 @@ const venueSchema = z.object({
   description: z.string().optional(),
 });
 
+// Strip fields not yet in DB schema
+const toVenueData = (parsed: any) => {
+  const { description, ...rest } = parsed;
+  return rest;
+};
+
 // POST /api/venues
 export const createVenue = async (req: Request, res: Response) => {
   try {
@@ -17,7 +23,7 @@ export const createVenue = async (req: Request, res: Response) => {
     const parsedData = venueSchema.parse(req.body);
 
     const venue = await prisma.venue.create({
-      data: { ...parsedData, adminId },
+      data: { ...toVenueData(parsedData), adminId },
     });
 
     res.status(201).json({ message: 'Local criado com sucesso.', venue });
@@ -92,7 +98,7 @@ export const updateVenue = async (req: Request, res: Response) => {
     if (!venue) return res.status(404).json({ error: 'Local não encontrado.' });
     if (venue.adminId !== adminId) return res.status(403).json({ error: 'Sem permissão.' });
 
-    const updated = await prisma.venue.update({ where: { id }, data: parsedData });
+    const updated = await prisma.venue.update({ where: { id }, data: toVenueData(parsedData) });
     res.json({ message: 'Local atualizado.', venue: updated });
   } catch (error) {
     if (error instanceof z.ZodError) {

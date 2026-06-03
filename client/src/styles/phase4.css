@@ -3,13 +3,25 @@
    ======================== */
 
 /* ---- Dashboard Shared ---- */
-.dashboard-page { display: flex; flex-direction: column; gap: 2rem; }
+.dashboard-page { display: flex; flex-direction: column; gap: 1.25rem; }
 .dashboard-page-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 0.75rem;
 }
-.dashboard-page-header h1 { font-size: 1.8rem; }
+.dashboard-page-header h1 {
+  font-size: 1.5rem;
+  flex-shrink: 1;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.dashboard-page-header .btn {
+  flex-shrink: 0;
+  white-space: nowrap;
+}
 
 .dashboard-section {
   background: var(--bg-secondary);
@@ -20,8 +32,8 @@
 .dashboard-section h2 { font-size: 1.1rem; margin-bottom: 1rem; }
 
 .dashboard-body-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
+  display: flex;
+  flex-direction: column;
   gap: 1.5rem;
 }
 
@@ -149,7 +161,7 @@
 
 .discover-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  grid-template-columns: 1fr;
   gap: 1.5rem;
 }
 
@@ -290,16 +302,17 @@
 }
 
 .notif-dropdown {
-  position: absolute;
-  right: 0;
-  top: calc(100% + 8px);
-  width: 360px;
+  position: fixed;
+  top: 64px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(420px, 96vw);
   max-height: 480px;
   background: var(--bg-secondary);
   border: 1px solid var(--glass-border);
   border-radius: 14px;
   box-shadow: 0 16px 40px rgba(0, 0, 0, 0.4);
-  z-index: 50;
+  z-index: 200;
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -358,9 +371,8 @@
 
 /* ---- Responsive ---- */
 @media (max-width: 900px) {
-  .dashboard-body-grid { grid-template-columns: 1fr; }
-  .discover-grid { grid-template-columns: 1fr; }
-  .notif-dropdown { width: 300px; right: -60px; }
+  /* dashboard-body-grid and discover-grid already single column */
+  /* notif-dropdown now fixed-centered */
 }
 
 /* ---- Teams Page ---- */

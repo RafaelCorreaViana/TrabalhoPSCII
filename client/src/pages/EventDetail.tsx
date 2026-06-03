@@ -81,18 +81,23 @@ export default function EventDetail() {
     <div className="event-detail-page">
       {/* Header */}
       <div className="event-detail-header">
-        <button className="btn btn-secondary btn-sm back-btn" onClick={() => navigate('/events')}>
-          ← Voltar
-        </button>
-        <div className="event-title-block">
+        {/* Linha 1: Voltar + badges */}
+        <div className="event-header-top-row">
+          <button className="btn btn-secondary btn-sm back-btn" onClick={() => navigate('/events')}>
+            ← Voltar
+          </button>
           <div className="event-meta-row">
             <span className={`status-badge status-${event.status.toLowerCase()}`}>
               {STATUS_LABELS[event.status]}
             </span>
             <span className="sport-chip">{event.sportType}</span>
           </div>
-          <h1>{event.name}</h1>
         </div>
+
+        {/* Linha 2: Título */}
+        <h1>{event.name}</h1>
+
+        {/* Linha 3: Botões de ação */}
         <div className="event-header-actions">
           {event.status === 'DRAFT' && (
             <Button
@@ -100,7 +105,7 @@ export default function EventDetail() {
               onClick={() => updateEvent.mutate({ id: id!, data: { status: 'ACTIVE' } })}
               isLoading={updateEvent.isPending}
             >
-              🚀 Publicar Evento
+              🚀 Publicar
             </Button>
           )}
           <Button variant="secondary" onClick={() => navigate(`/events/${id}/edit`)}>

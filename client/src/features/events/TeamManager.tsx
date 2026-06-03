@@ -135,7 +135,7 @@ export default function TeamManager({ eventId, eventTeams = [] }: TeamManagerPro
                 ) : assigningPlayer?.playerId === reg.playerId ? (
                   <div className="assign-form">
                     <select
-                      className="form-input form-input-sm"
+                      className="form-input"
                       value={selectedTeamId}
                       onChange={(e) => setSelectedTeamId(e.target.value)}
                     >
@@ -144,17 +144,18 @@ export default function TeamManager({ eventId, eventTeams = [] }: TeamManagerPro
                         <option key={t.id} value={t.id}>{t.name}</option>
                       ))}
                     </select>
-                    <Button
-                      size="small"
-                      onClick={() => addMemberMutation.mutate({ teamId: selectedTeamId, playerId: reg.playerId })}
-                      disabled={!selectedTeamId}
-                      isLoading={addMemberMutation.isPending}
-                    >
-                      Alocar
-                    </Button>
-                    <Button size="small" variant="secondary" onClick={() => setAssigningPlayer(null)}>
-                      Cancelar
-                    </Button>
+                    <div className="assign-form-buttons">
+                      <button
+                        className="btn btn-primary btn-sm"
+                        onClick={() => addMemberMutation.mutate({ teamId: selectedTeamId, playerId: reg.playerId })}
+                        disabled={!selectedTeamId || addMemberMutation.isPending}
+                      >
+                        Alocar
+                      </button>
+                      <button className="btn btn-secondary btn-sm" onClick={() => setAssigningPlayer(null)}>
+                        Cancelar
+                      </button>
+                    </div>
                   </div>
                 ) : (
                   <Button

@@ -47,7 +47,7 @@ export default function EventPublicDetail() {
   const max = event.maxParticipants || '∞';
 
   return (
-    <div className="animate-fade-in" style={{ paddingBottom: '100px' }}>
+    <div className="animate-fade-in">
       <button className="btn-icon" onClick={() => navigate('/discover')} style={{ marginBottom: '1rem' }}>
         <ArrowLeft size={20} />
       </button>
@@ -136,22 +136,14 @@ export default function EventPublicDetail() {
         </div>
       )}
 
-      {/* Fixed Bottom Action */}
+      {/* Bottom Action */}
       <div style={{
-        position: 'fixed',
-        bottom: '64px', // above bottom nav
-        left: 0,
-        right: 0,
-        padding: '1rem',
-        background: 'var(--bg-secondary)',
+        padding: '1rem 0',
         borderTop: '1px solid var(--border-color)',
         display: 'flex',
         flexDirection: 'column',
         gap: '0.75rem',
-        zIndex: 90,
-        maxWidth: '480px',
-        margin: '0 auto',
-        boxShadow: '0 -4px 20px rgba(0,0,0,0.05)'
+        marginTop: '0.5rem',
       }}>
         {!user ? (
           <button className="btn btn-primary w-full" onClick={() => navigate('/login')}>
